@@ -17,9 +17,7 @@ struct node {
 struct inf {
     union {
         unsigned long long file_size;
-        struct {
-            char fz[8];
-        };
+        char fz[8];
     };
     vector<unsigned char> symbols;
     vector<unsigned char> tree;

@@ -11,7 +11,7 @@ struct coder {
 
 private:
     vector<size_t> cnt;
-    vector<unsigned> codes;
+    vector<unsigned long long> codes;
     vector<unsigned> codes_sizes;
     unsigned char tail;
     size_t tail_size;

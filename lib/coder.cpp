@@ -78,20 +78,15 @@ vector<unsigned char> coder::code(vector<unsigned char> a) {
         if (codes_sizes[a[i]] <= pos) {
             pos = pos - codes_sizes[a[i]];
             ret[ind] += codes[a[i]] << pos;
-
-        } else if (codes_sizes[a[i]] <= pos + 8) {
-            ret[ind] += codes[a[i]] >> (codes_sizes[a[i]] - pos);
-            ind++;
-            pos = codes_sizes[a[i]] - pos;
-            ret[ind] += (codes[a[i]] % (1 << pos)) << (8 - pos);
-            pos = 8 - pos;
         } else {
             ret[ind] += codes[a[i]] >> (codes_sizes[a[i]] - pos);
             ind++;
             pos = codes_sizes[a[i]] - pos;
-            ret[ind] += (codes[a[i]] % (1 << pos)) >> (pos - 8);
-            ind++;
-            pos = pos - 8;
+            while (pos >= 8) {
+                ret[ind] += (codes[a[i]] % (1 << pos)) >> (pos - 8);
+                ind++;
+                pos = pos - 8;
+            }
             ret[ind] += (codes[a[i]] % (1 << pos)) << (8 - pos);
             pos = 8 - pos;
         }

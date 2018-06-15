@@ -1,5 +1,7 @@
 #include "coder.h"
 #include <set>
+#include <numeric>
+#include <cstdint>
 
 coder::coder() :
     cnt(SIZE, 0),
@@ -11,12 +13,14 @@ coder::coder() :
 
 void coder::update(vector<unsigned char> a) {
     file_size += a.size();
+    // for-each
     for (size_t i = 0; i < a.size(); i++) {
         cnt[a[i]]++;
     }
 }
 
 inf coder::build() {
+    // убери std::pair и сделай структуру с полями и нормальными названиями
     std::set< std::pair<size_t, node *> > q;
     cnt[0]++; cnt[1]++;
     for (size_t i = 0; i < SIZE; i++) {
@@ -25,39 +29,33 @@ inf coder::build() {
             q.insert({cnt[i], t});
         }
     }
+
+    // но ведь так намного понятнее)))
     while (q.size() != 1) {
-        node *t = new node(SIZE);
-        size_t ch = 0;
-        t->left = q.begin()->second;
-        ch += q.begin()->first;
+        auto a = *q.begin();
         q.erase(q.begin());
-        t->right = q.begin()->second;
-        ch += q.begin()->first;
+
+        auto b = *q.begin();
         q.erase(q.begin());
-        q.insert({ch, t});
+
+        node *t = new node(SIZE, a.second, b.second);
+        q.insert({a.first + b.first, t});
     }
+
     inf ret;
     ret.tree.push_back(0);
     int pos = 7;
     tree_traversal(q.begin()->second, 0, 0, ret.symbols, pos, ret.tree);
-    ret.file_size = 0;
-    for (size_t i = 0; i < SIZE; i++) {
-        ret.file_size += codes_sizes[i] * cnt[i];
-    }
+    ret.file_size = std::inner_product(codes_sizes.begin(), codes_sizes.end(), cnt.begin(), 0);
     ret.file_size -= codes_sizes[0] + codes_sizes[1];
     return ret;
 }
 
 vector<unsigned char> coder::code(vector<unsigned char> a) {
-    vector<int> mycnt(SIZE, 0);
-    for (size_t i = 0; i < a.size(); i++) {
-        mycnt[a[i]]++;
-    }
-    size_t block_size = 0;
-    for (size_t i = 0; i < SIZE; i++) {
-        block_size += codes_sizes[i] * mycnt[i];
-    }
-    block_size += tail_size;
+    size_t block_size = std::accumulate(a.begin(), a.end(), tail_size,
+                                        [&](size_t sum, uint8_t c) { return sum + codes_sizes[c];});
+
+
     size_t block = block_size / 8;
     size_t ost = block_size % 8;
     if (file_size == a.size()) {
@@ -74,6 +72,8 @@ vector<unsigned char> coder::code(vector<unsigned char> a) {
         pos = pos - tail_size;
         ret[0] = tail << pos;
     }
+
+    // for-each based loop
     for (size_t i = 0; i < a.size(); i++) {
         if (codes_sizes[a[i]] <= pos) {
             pos = pos - codes_sizes[a[i]];
@@ -104,6 +104,7 @@ vector<unsigned char> coder::code(vector<unsigned char> a) {
     return ret;
 }
 
+// подумай, чтобы уменьшить число принимаемых аргументов
 void coder::tree_traversal(node *root, unsigned code, unsigned s,
                     vector<unsigned char> &symbols, int &pos,
                     vector<unsigned char> &tree)

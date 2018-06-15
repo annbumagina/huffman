@@ -24,6 +24,7 @@ void code(ifstream &in, ofstream &out) {
 
     inf inf = z.build();
     for (int i = 0; i < 8; i++) out << inf.fz[i];
+
     out << (unsigned char) inf.tree.size() << (unsigned char) (inf.symbols.size() - 1);
     out.write((char*) (inf.symbols.data()), inf.symbols.size());
     out.write((char*) (inf.tree.data()), inf.tree.size());
@@ -78,6 +79,7 @@ int main(int argc, char *argv[]) {
         if (in.fail()) {
             throw runtime_error("Opening file failed");
         }
+        // 1: не используй Сишные функции
         if (strcmp(argv[1], "-c") == 0) {
             code(in, out);
         } else if (strcmp(argv[1], "-d") == 0) {
@@ -86,10 +88,14 @@ int main(int argc, char *argv[]) {
             cerr << "Correct use: -[c|d] src dst\n";
         }
 
+        // ловить нужно по &, если кинут наследника то `what` выдаст не то что ожидается
     } catch (runtime_error e) {
+        // спасибо за содержательную ошибку
         cerr << "Bad, bad, bad!\n";
         cerr << e.what() << '\n';
     }
+
+    // stream закрывают автоматически - это RAII обертка над файлами
     in.close();
     out.close();
 }

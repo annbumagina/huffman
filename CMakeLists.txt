@@ -15,7 +15,7 @@ add_subdirectory(lib)
 
 add_executable(huffman_testing
                huffman_testing.cpp
-	       gtest/gtest-all.cc
+               gtest/gtest-all.cc
                gtest/gtest.h
                gtest/gtest_main.cc)
 

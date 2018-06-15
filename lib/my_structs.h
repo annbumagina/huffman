@@ -4,16 +4,22 @@
 #include <vector>
 #include <cstddef>
 
+// 2: это библиотека, а ты засоряешь пространство имен пользователей
 using std::vector;
 
+// ^2
 const size_t SIZE = 256;
 
 struct node {
     unsigned val;
     node *left, *right;
-    node(unsigned val) : val(val), left(nullptr), right(nullptr) {}
+    node(unsigned val, node *left, node *right) : val(val), left(left), right(right) {}
+    
+    // explicit
+    node(unsigned val) : node(val, nullptr, nullptr) {}
 };
 
+// интересное название
 struct inf {
     union {
         unsigned long long file_size;

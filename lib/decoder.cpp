@@ -94,6 +94,8 @@ void decoder::tree_traversal(node *root, int &symb, vector<unsigned char> const 
         pos = 7;
         ind++;
     }
+    // не используй явно new
+    // используй shared_ptr, unique_ptr, weak_ptr...
     root->left = new node(SIZE);
     root->right = new node(SIZE);
     tree_traversal(root->left, symb, symbols, pos, ind, tree);

@@ -5,21 +5,21 @@
 
 struct coder {
     coder();
-    void update(vector<unsigned char> a);
-    inf build();
-    vector<unsigned char> code(vector<unsigned char> a);
+    void update(std::vector<unsigned char> const &a);
+    info build();
+    std::vector<unsigned char> code(std::vector<unsigned char> const &a);
 
 private:
-    vector<size_t> cnt;
-    vector<unsigned long long> codes;
-    vector<unsigned> codes_sizes;
+    static const size_t SIZE = 256;
+
+    std::vector<size_t> cnt;
+    std::vector<unsigned long long> codes;
+    std::vector<unsigned> codes_sizes;
     unsigned char tail;
     size_t tail_size;
     size_t file_size;
 
-    void tree_traversal(node *root, unsigned code, unsigned s,
-                        vector<unsigned char> &symbols, int &pos,
-                        vector<unsigned char> &tree);
+    void tree_traversal(std::shared_ptr<node> root, unsigned code, unsigned s, info &ret, int &pos);
 };
 
 #endif // CODER_H

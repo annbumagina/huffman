@@ -5,22 +5,21 @@
 
 struct decoder {
     decoder();
-    ~decoder();
-    void build(inf inf);
-    vector<unsigned char> decode(vector<unsigned char> a);
+    void build(info const &inf);
+    std::vector<unsigned char> decode(std::vector<unsigned char> const &a);
     bool is_all_data_decoded();
 
 private:
-    node *head;
+    static const size_t SIZE = 256;
+
+    std::shared_ptr<node> head;
     unsigned short tail;
     size_t tail_size;
     long long file_size;
 
-    void next_bit(int data, int bit, node *&root, vector<unsigned char> &ret,
+    void next_bit(int data, int bit, node *&root, std::vector<unsigned char> &ret,
                   unsigned short &new_tail, size_t &new_tail_size);
-    void tree_traversal(node* root, int &symb, vector<unsigned char> const &symbols,
-                        int &pos, size_t &ind, vector<unsigned char> const &tree);
-    void delete_tree(node * root);
+    void tree_traversal(std::shared_ptr<node> root, info const &inf, int &symb, int &pos, size_t &ind);
 };
 
 #endif // DECODER_H

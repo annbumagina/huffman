@@ -22,8 +22,9 @@ void code(ifstream &in, ofstream &out) {
         z.update(buf);
     } while (in);
 
-    inf inf = z.build();
+    info inf = z.build();
     for (int i = 0; i < 8; i++) out << inf.fz[i];
+
     out << (unsigned char) inf.tree.size() << (unsigned char) (inf.symbols.size() - 1);
     out.write((char*) (inf.symbols.data()), inf.symbols.size());
     out.write((char*) (inf.tree.data()), inf.tree.size());
@@ -39,7 +40,7 @@ void code(ifstream &in, ofstream &out) {
 }
 
 void decode(ifstream &in, ofstream &out) {
-    inf inf;
+    info inf;
     inf.file_size = 0;
     for (int i = 0; i < 8; i++) in.get(inf.fz[i]);
     unsigned char tmp = 1;
@@ -78,18 +79,16 @@ int main(int argc, char *argv[]) {
         if (in.fail()) {
             throw runtime_error("Opening file failed");
         }
-        if (strcmp(argv[1], "-c") == 0) {
+        if (string(argv[1]).compare("-c") == 0) {
             code(in, out);
-        } else if (strcmp(argv[1], "-d") == 0) {
+        } else if (string(argv[1]).compare("-d") == 0) {
             decode(in, out);
         } else {
             cerr << "Correct use: -[c|d] src dst\n";
         }
 
-    } catch (runtime_error e) {
-        cerr << "Bad, bad, bad!\n";
+    } catch (runtime_error &e) {
+        cerr << "Error occurred:\n";
         cerr << e.what() << '\n';
     }
-    in.close();
-    out.close();
 }

@@ -3,27 +3,22 @@
 #include <stdexcept>
 
 decoder::decoder() :
-    head(nullptr),
+    head(new node(SIZE)),
     tail(0),
     tail_size(0)
 {}
 
-decoder::~decoder() {
-    delete_tree(head);
-}
-
-void decoder::build(inf inf) {
+void decoder::build(info const &inf) {
     int symb = 0;
     int pos = 7;
     size_t ind = 0;
-    head = new node(SIZE);
-    tree_traversal(head, symb, inf.symbols, pos, ind, inf.tree);
+    tree_traversal(head, inf, symb, pos, ind);
     file_size = inf.file_size;
 }
 
-vector<unsigned char> decoder::decode(vector<unsigned char> a) {
-    vector<unsigned char> ret;
-    node *root = head;
+std::vector<unsigned char> decoder::decode(std::vector<unsigned char> const &a) {
+    std::vector<unsigned char> ret;
+    node *root = head.get();
     unsigned short new_tail = 0;
     size_t new_tail_size = 0;
     for (int j = tail_size - 1; j >= 0; j--) {
@@ -48,7 +43,7 @@ bool decoder::is_all_data_decoded() {
     return file_size <= 0;
 }
 
-void decoder::next_bit(int data, int bit, node *&root, vector<unsigned char> &ret,
+void decoder::next_bit(int data, int bit, node *&root, std::vector<unsigned char> &ret,
                        unsigned short &new_tail, size_t &new_tail_size)
 {
     if (root == nullptr) {
@@ -58,29 +53,28 @@ void decoder::next_bit(int data, int bit, node *&root, vector<unsigned char> &re
     new_tail *= 2;
     if (data & (1 << bit)) {
         new_tail++;
-        root = root->right;
+        root = root->right.get();
     } else {
-        root = root->left;
+        root = root->left.get();
     }
     if (root == nullptr) {
         throw std::runtime_error("Damaged file");
     }
     if (root->val != SIZE) {
         ret.push_back(root->val);
-        root = head;
+        root = head.get();
         new_tail = 0;
         new_tail_size = 0;
     }
 }
 
-void decoder::tree_traversal(node *root, int &symb, vector<unsigned char> const &symbols,
-                             int &pos, size_t &ind, vector<unsigned char> const &tree)
+void decoder::tree_traversal(std::shared_ptr<node> root, info const &inf, int &symb, int &pos, size_t &ind)
 {
-    if (ind >= tree.size()) {
+    if (ind >= inf.tree.size()) {
         throw std::runtime_error("Damaged control part of file");
     }
-    if (tree[ind] & (1 << pos)) {
-        root->val = symbols[symb];
+    if (inf.tree[ind] & (1 << pos)) {
+        root->val = inf.symbols[symb];
         symb++;
         pos--;
         if (pos == -1) {
@@ -94,21 +88,8 @@ void decoder::tree_traversal(node *root, int &symb, vector<unsigned char> const 
         pos = 7;
         ind++;
     }
-    root->left = new node(SIZE);
-    root->right = new node(SIZE);
-    tree_traversal(root->left, symb, symbols, pos, ind, tree);
-    tree_traversal(root->right, symb, symbols, pos, ind, tree);
-}
-
-void decoder::delete_tree(node *root) {
-    if (root == nullptr) {
-        return;
-    }
-    if (root->val != SIZE) {
-        delete root;
-        return;
-    }
-    delete_tree(root->left);
-    delete_tree(root->right);
-    delete root;
+    new(&root->left) std::shared_ptr<node>(new node(SIZE));
+    new(&root->right) std::shared_ptr<node>(new node(SIZE));
+    tree_traversal(root->left, inf, symb, pos, ind);
+    tree_traversal(root->right, inf, symb, pos, ind);
 }
